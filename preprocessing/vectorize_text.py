@@ -154,11 +154,13 @@ def preprocess_text(article,
     return article
 
 tqdm.pandas(desc='Cleaning text files...')
-articles['text'] = articles['text'].progress_apply(lambda text: preprocess_text(text, 
-                                                                                return_string = True))
-articles_truncated['text'] = articles_truncated['text'].progress_apply(lambda text: preprocess_text(text, 
-                                                                                                    truncate = keepfirst, 
-                                                                                                    return_string = True))
+articles['text'] = articles['text'].progress_apply(
+    lambda text: preprocess_text(text, 
+                                 return_string = True))
+articles_truncated['text'] = articles_truncated['text'].progress_apply(
+    lambda text: preprocess_text(text, 
+                                 truncate = keepfirst, 
+                                 return_string = True))
 
 # Collect articles into one big list of strings, one per article, to train in vectorizers
 tqdm.pandas(desc='Collecting sentences for vectorization...')
