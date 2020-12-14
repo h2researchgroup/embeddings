@@ -85,7 +85,7 @@ articles_truncated = articles.copy()
 
 # Use articles data to define additional file paths
 prepped_fp = data_fp + f'filtered_preprocessed_texts_{str(len(articles))}_{str(thisday)}.pkl' # ALL JSTOR preprocessed text
-trunc_prepped_fp = data_fp + f'filtered_preprocessed_texts_500_{str(len(articles))}_{str(thisday)}.pkl' # ALL JSTOR preprocessed text, first 500 words
+trunc_prepped_fp = data_fp + f'filtered_preprocessed_texts_{str(keepfirst)}_{str(len(articles))}_{str(thisday)}.pkl' # ALL JSTOR preprocessed text, some number of words (=keepfirst) words from front of each
 
 vec_fp = model_fp + f'vectorizer_unweighted_{str(len(articles))}_{str(thisday)}.joblib' # unweighted vectorizer trained on ALL article text data 
 tfidf_vec_fp = model_fp + f'vectorizer_tfidf_{str(len(articles))}_{str(thisday)}.joblib' # TF-IDF weighted vectorizer trained on ALL article text data 
@@ -94,10 +94,10 @@ tfidf_vec_trunc_fp = model_fp + f'vectorizer_tfidf_trunc_{str(keepfirst)}_{str(l
 vec_feat_fp = model_fp + f'vectorizer_features_{str(len(articles))}_{str(thisday)}.csv' # vocab of (unweighted) vectorizer (for verification purposes)
 vec_feat_trunc_fp = model_fp + f'vectorizer_features_trunc_{str(keepfirst)}_{str(len(articles))}_{str(thisday)}.csv' # vocab of (unweighted) vectorizer, text truncated to keepfirst
 
-dtm_fp = model_fp + f'dtm_unweighted_full_{str(len(articles))}_{str(thisday)}.joblib' # unweighted DTM, complete texts
-tfidf_dtm_fp = model_fp + f'dtm_tfidf_full_{str(len(articles))}_{str(thisday)}.joblib' # TF-IDF weighted DTM, complete texts
-dtm_trunc_fp = model_fp + f'dtm_unweighted_trunc_{str(keepfirst)}_{str(len(articles))}_{str(thisday)}.joblib' # unweighted DTM, truncated to keepfirst
-dtm_tfidf_trunc_fp = model_fp + f'dtm_tfidf_trunc_{str(keepfirst)}_{str(len(articles))}_{str(thisday)}.joblib' # TF-IDF weighted DTM, truncated to keepfirst
+dtm_fp = model_fp + f'dtm_unweighted_full_{str(len(articles))}_{str(thisday)}.pkl' # unweighted DTM, complete texts
+tfidf_dtm_fp = model_fp + f'dtm_tfidf_full_{str(len(articles))}_{str(thisday)}.pkl' # TF-IDF weighted DTM, complete texts
+dtm_trunc_fp = model_fp + f'dtm_unweighted_trunc_{str(keepfirst)}_{str(len(articles))}_{str(thisday)}.pkl' # unweighted DTM, truncated to keepfirst
+dtm_tfidf_trunc_fp = model_fp + f'dtm_tfidf_trunc_{str(keepfirst)}_{str(len(articles))}_{str(thisday)}.pkl' # TF-IDF weighted DTM, truncated to keepfirst
 
 
 ###############################################
@@ -135,7 +135,7 @@ def preprocess_text(article,
     article = article.replace('<plain_text><page sequence="1">', '')
     article = re.sub(r'</page>(\<.*?\>)', ' \n ', article)
     
-    article = clean_sentence_apache(sent, 
+    article = clean_sentence_apache(article, 
                                     unhyphenate=True, 
                                     remove_numbers=False, 
                                     remove_acronyms=False, 
@@ -173,6 +173,8 @@ docs_trunc = []; articles_truncated['text'].progress_apply(lambda article: docs_
 
 # Define stopwords used by JSTOR
 jstor_stopwords = set(["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with"])
+
+print("Preparing and applying vectorizers...")
 
 # Use TFIDF weighted DTM because results in better classifier accuracy than unweighted
 vectorizer = CountVectorizer(max_features=100000, min_df=1, max_df=0.8, stop_words=jstor_stopwords) # unweighted DTM
