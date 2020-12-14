@@ -38,6 +38,7 @@ import random
 import os; from os import listdir; from os.path import isfile, join
 
 # Define base file path
+cwd = os.getcwd()
 root = str.replace(cwd, 'embeddings_jstor/preprocessing', '') # retains last slash
 
 # Custom scripts for working with texts in Python
@@ -50,8 +51,6 @@ from text_to_file import write_textlist, read_text # custom scripts for reading 
 ###############################################
 # Define file paths
 ###############################################
-
-cwd = os.getcwd()
 
 thisday = date.today().strftime("%m%d%y")
 
@@ -190,16 +189,13 @@ print('Number of features in vectorizer:', len(vectorizer.get_feature_names()))
     
 # Create TF-IDF vectorizer (features are the same)
 dtm_tfidf = tfidf_vectorizer.fit_transform(docs)
-joblib.dump(dtm_tfidf, open(tfidf_dtm_fp, "wb"))
 joblib.dump(tfidf_vectorizer, open(tfidf_vec_fp, "wb"))
-
 
 # Repeat for truncated version of articles, start with new vectorizers to avoid duplication
 vectorizer = CountVectorizer(max_features=100000, min_df=1, max_df=0.8, stop_words=jstor_stopwords) # unweighted DTM
 tfidf_vectorizer = TfidfVectorizer(max_features=100000, min_df=1, max_df=0.8, stop_words=jstor_stopwords) # TFIDF-weighted DTM
 
 dtm_trunc = vectorizer.fit_transform(docs_trunc)
-joblib.dump(dtm_trunc, open(dtm_trunc_fp, "wb"))
 joblib.dump(vectorizer, open(vec_trunc_fp, "wb"))
 with open(vec_feat_trunc_fp,'w') as f:
     writer = csv.writer(f)
@@ -209,17 +205,25 @@ print('Number of features in truncated vectorizer:', len(vectorizer.get_feature_
     
 # Create TF-IDF vectorizer (features are the same)
 dtm_tfidf_trunc = tfidf_vectorizer.fit_transform(docs_trunc)
-joblib.dump(dtm_tfidf_trunc, open(dtm_tfidf_trunc_fp, "wb"))
 joblib.dump(tfidf_vectorizer, open(tfidf_vec_trunc_fp, "wb"))
 
 
 ###############################################
-# Save full, preprocessed text data
+# Save DTMs and preprocessed text data
 ###############################################
 
+print("Saving DTMs and preprocessed texts to file.")
+
+# DTMs
+quickpickle_dump(dtm, dtm_fp)
+quickpickle_dump(dtm_tfidf, tfidf_dtm_fp)
+quickpickle_dump(dtm_trunc, dtm_trunc_fp)
+quickpickle_dump(dtm_tfidf_trunc, dtm_tfidf_trunc_fp)
+
+# Preprocessed text data
 quickpickle_dump(articles_truncated, trunc_prepped_fp)
 quickpickle_dump(articles, prepped_fp)
 
-print("Saved preprocessed texts to file.")
+print("Done saving preparatory objects for NLP.")
 
 sys.exit() # Close script to be safe
