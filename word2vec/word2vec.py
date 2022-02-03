@@ -5,12 +5,12 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8
 
-# Word Embedding Models: Preprocessing and Doc2Vec Model Training
+# Word Embedding Models: Preprocessing and Word2Vec Model Training
 # Project title: Charter school identities 
-# Creator: Yoon Sung Hong
+# Creators: Yoon Sung Hong and Jaren Haber
 # Institution: Department of Sociology, University of California, Berkeley
 # Date created: June 9, 2019
-# Date last edited: June 10, 2019
+# Date last edited: February 3, 2022
 
 # Import general packages
 import imp, importlib # For working with modules
@@ -62,15 +62,12 @@ nltk.download('words')
 from os import listdir
 from os.path import isfile, join
 
-<<<<<<< HEAD
-=======
-import sys; sys.path.insert(0, "../../../data_management/tools/")
-from clean_text import stopwords_make, punctstr_make, unicode_make, get_common_words, clean_sentence
+import sys; sys.path.insert(0, "../../classification/preprocess/")
+from clean_text import stopwords_make, punctstr_make, unicode_make, clean_sentence_apache
 
->>>>>>> 8a929bf... cleaning up and normalizing WEMs and N-Gram work from summer 2019
 cwd = os.getcwd()
-cwd = cwd.replace('Computational-Analysis-For-Social-Science/WordEmbedding/yoon', 'jstor_data/ocr')
-files = ['../../../jstor_data/ocr/' + f for f in listdir(cwd) if isfile(join(cwd, f))]
+cwd = cwd.replace('embeddings/word2vec', 'jstor_data/ocr')
+files = ['../../jstor_data/ocr/' + f for f in listdir(cwd) if isfile(join(cwd, f))]
 
 #initializing two lists for strings from files and the filenames
 text_ls = []
@@ -310,11 +307,7 @@ for school in df['text']:
         print("Processed: ", s_count, " Schools' texts.")
     for chunk in school.split("\n"):
         for sent in sent_tokenize(chunk):
-<<<<<<< HEAD
-            sent = clean_sentence(sent)
-=======
-            sent = clean_sentence(sent, unhyphenate=True, remove_propernouns=False)
->>>>>>> 8a929bf... cleaning up and normalizing WEMs and N-Gram work from summer 2019
+            sent = clean_sentence_apache(sent, unhyphenate=True, remove_propernouns=False)
             sent = [word for word in sent if word != '']
             if len(sent) > 0:
                 whole_text.append(sent)
@@ -323,56 +316,29 @@ print("Text appending/processing complete!")
 
 #defining directory locations to save word embedding model/vocab
 cwd = os.getcwd()
-<<<<<<< HEAD
-model_path = cwd + "/wem_model_300d.bin"
-vocab_path = cwd + "/wem_vocab_300d.txt"
-
-# Train the model with above parameters:
-try:
-    print("Training word2vec model...")
-    model = gensim.models.Word2Vec(whole_text, size=300, window=8, min_count=3, sg=1, alpha=0.025, min_alpha=0.001,\
-                                   iter=10, batch_words=20000, workers=20, seed=0, negative=5, ns_exponent=0.75)
-    print("word2vec model TRAINED successfully!")
-
-    # Save model:
-    with open(model_path, 'wb') as destfile:
-        try:
-            model.wv.save_word2vec_format(destfile, binary=True)
-            print("word2vec model SAVED to " + str(model_path))
-        except Exception as e:
-            print(str(e))
-            try:
-                model.save(destfile)
-                print("word2vec model SAVED to " + str(model_path))
-            except Exception as e:
-                print(str(e))
-=======
-model_path = cwd + "/word2vec_phrased_filtered_300d_2021_sept5.bin"
-#model_path = cwd + "/wem_model_phrased_filtered_300d.bin" #named _phrased. Remove if you don't want to use phrases
-#vocab_path = cwd + "/wem_vocab_phrased_filtered_300d.txt" #named _phrased. Remove if you don't want to use phrases
-
-#setting up multiprocessing
-import multiprocessing
-from sklearn import utils
-cores = multiprocessing.cpu_count()
+cwd = cwd.replace('embeddings/word2vec', 'models_storage/word_embeddings_data')
+model_path = cwd + "/word2vec_phrased_filtered_300d_2022_feb.bin"
+vocab_path = cwd + "/wem_vocab_phrased_filtered_300d_2022_feb.txt" #named _phrased. Remove if you don't want to use phrases
 
 # Train the model with above parameters:
 print("Training word2vec model...") #change the words_by_sentence below to whole text if you don't want to use phrases
 model = gensim.models.Word2Vec(words_by_sentence, size=300, window=10, min_count=5, sg=1, alpha=0.05,\
                                iter=50, batch_words=10000, workers=cores, seed=0, negative=5, ns_exponent=0.75)
+print("word2vec model TRAINED successfully!")
 
 
 # Save model:
 from gensim.test.utils import get_tmpfile
 
-fname = "word2vec_phrased_filtered_300d_2021_sept5.bin"
+fname = "word2vec_phrased_filtered_300d_2022_feb.bin"
 model.save(fname)
 print("Model Saved!")
+
+#For reference
 #model.wv.save_word2vec_format("wem_model_phrased_filtered_300d.bin", binary=True)
 #model.save("wem_vocab_phrased_filtered_300d.txt")
 #model.wv.save_word2vec_format(model_path, binary=True)
 #model.save(vocab_path)
->>>>>>> 8a929bf... cleaning up and normalizing WEMs and N-Gram work from summer 2019
                
 # Load word2vec model and save vocab list
 #model = gensim.models.KeyedVectors.load_word2vec_format(model_path, binary=True)
