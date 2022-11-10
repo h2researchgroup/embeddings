@@ -1,0 +1,611 @@
+---
+title: "Calculate sample CWMD"
+output: html_document
+date: "2022-09-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r pressure, echo=FALSE}
+
+library(reticulate)
+```
+
+```{r}
+library(word2vec)
+```
+
+```{r}
+library(word2vec)
+
+```
+
+```{r}
+library(text2map)
+```
+
+```{r}
+library(text2vec)
+```
+
+
+
+```{r}
+neg_cult_sample = read.csv('/Users/nancyxu/wmd/neg_cult_sample_wmd_cos.csv')
+pos_cult_sample = read.csv('/Users/nancyxu/wmd/pos_cult_sample_wmd_cos.csv')
+
+neg_rela_sample = read.csv('/Users/nancyxu/wmd/neg_rela_sample_wmd_cos.csv')
+pos_rela_sample = read.csv('/Users/nancyxu/wmd/pos_cult_sample_wmd_cos.csv')
+
+neg_dem_sample = read.csv('/Users/nancyxu/wmd/neg_demog_sample_wmd_cos.csv')
+pos_dem_sample = read.csv('/Users/nancyxu/wmd/pos_demog_sample_wmd_cos.csv')
+```
+
+```{r}
+library('quanteda')
+```
+
+## get document-feature matrix for each sample dataframe
+
+```{r}
+dfmat_neg_cult <- dfm(tokens(neg_cult_sample[,'processed'],
+                remove_punct = TRUE))
+
+head(dfmat_neg_cult)
+```
+
+
+```{r}
+dfmat_pos_cult <- dfm(tokens(pos_cult_sample[,'processed'],
+                remove_punct = TRUE))
+
+head(dfmat_pos_cult)
+```
+
+
+```{r}
+dfmat_neg_rela <- dfm(tokens(neg_rela_sample[,'processed'],
+                remove_punct = TRUE))
+
+head(dfmat_neg_rela)
+```
+
+
+
+```{r}
+dfmat_pos_rela <- dfm(tokens(pos_rela_sample[,'processed'],
+                remove_punct = TRUE))
+
+head(dfmat_pos_rela)
+```
+
+
+```{r}
+dfmat_neg_dem <- dfm(tokens(neg_dem_sample[,'processed'],
+                remove_punct = TRUE))
+
+head(dfmat_neg_dem)
+```
+
+
+```{r}
+dfmat_pos_dem <- dfm(tokens(pos_dem_sample[,'processed'],
+                remove_punct = TRUE))
+
+head(dfmat_pos_dem)
+```
+
+## load w2v model & get embedding matrix
+
+```{r}
+library(word2vec)
+model=read.word2vec('/Users/nancyxu/Downloads/w2v_model_1103.bin')
+```
+
+
+
+```{r}
+emb <- as.matrix(model)
+```
+
+```{r}
+dem.seed <- c('age dependence',
+ 'birth rate',
+ 'carrying capacity',
+ 'chance survival',
+ 'competition',
+ 'death rate',
+ 'density',
+ 'ecological',
+ 'ecology',
+ 'evolution',
+ 'evolutionary',
+ 'failure rate',
+ 'fitness',
+ 'founding rate',
+ 'generalism',
+ 'generalist',
+ 'inertia',
+ 'inertial',
+ 'legitimacy',
+ 'legitimate',
+ 'legitimation',
+ 'liability newness',
+ 'natural selection',
+ 'niche',
+ 'organizational form',
+ 'population',
+ 'population ecology',
+ 'reliability',
+ 'resistance change',
+ 'selection',
+ 'selection',
+ 'size dependence',
+ 'specialism',
+ 'specialist',
+ 'structural inertia',
+ 'survival chance')
+```
+
+
+```{r}
+rela.seed <- c('board directors',
+ 'buffer',
+ 'coalition',
+ 'constrain',
+ 'constraint',
+ 'control',
+ 'cooperate',
+ 'cooperation',
+ 'coopt',
+ 'cooptation',
+ 'dependence',
+ 'dependent',
+ 'director interlock',
+ 'director interlocks',
+ 'diversification',
+ 'diversify',
+ 'dominance',
+ 'exchange',
+ 'external',
+ 'horizontal',
+ 'influence',
+ 'interdependence',
+ 'interdependent',
+ 'interlock',
+ 'interlocking',
+ 'joint venture',
+ 'merge',
+ 'merged',
+ 'merger',
+ 'network',
+ 'network',
+ 'power',
+ 'pressure',
+ 'resource dependence',
+ 'sanction',
+ 'vertical')
+```
+
+```{r}
+cult.seed <- c('ceremonial',
+ 'coercion',
+ 'coercive',
+ 'conform',
+ 'conformity',
+ 'cultural',
+ 'decouple',
+ 'decoupled',
+ 'diffuse',
+ 'diffusion',
+ 'imitate',
+ 'imitation',
+ 'innovation',
+ 'institutional',
+ 'institutionalize',
+ 'institutionalize',
+ 'interorganizational field',
+ 'isomorphic',
+ 'isomorphism',
+ 'legitimacy',
+ 'legitimate',
+ 'legitimation',
+ 'loosely coupled',
+ 'mimetic',
+ 'norm',
+ 'normative',
+ 'norms',
+ 'organizational field',
+ 'profession',
+ 'professional',
+ 'rationalize',
+ 'rationalized',
+ 'ritual',
+ 'socially constructed',
+ 'structuration',
+ 'taken granted')
+```
+
+
+
+## check which seed terms are in the vocab
+
+```{r}
+v <- rownames(emb)
+```
+
+
+```{r}
+check = c()
+for (i in rela.seed){
+  if (i %in% v){
+    print(i)
+  }
+  
+}
+```
+
+```{r}
+check = c()
+for (i in cult.seed){
+  if (i %in% v){
+    print(i)
+  }
+  
+}
+```
+
+```{r}
+check = c()
+for (i in dem.seed){
+  if (i %in% v){
+    print(i)
+  }
+  
+}
+```
+
+
+## get concept mover's distance for each sample dataframe with the centroid of each perspective's seed terms
+
+```{r}
+
+
+
+
+dem.seed <- c(
+ 
+ 'competition',
+
+ 'density',
+ 'ecological',
+ 'ecology',
+ 'evolution',
+ 'evolutionary',
+
+ 'fitness',
+
+ 'generalism',
+ 'generalist',
+ 'inertia',
+ 'inertial',
+ 'legitimacy',
+ 'legitimate',
+ 'legitimation',
+
+
+ 'niche',
+
+ 'population',
+
+ 'reliability',
+
+ 'selection',
+ 'selection',
+
+ 'specialism',
+ 'specialist')
+
+```
+
+
+```{r}
+
+
+
+rela.seed <- c(
+ 'buffer',
+ 'coalition',
+ 'constrain',
+ 'constraint',
+ 'control',
+ 'cooperate',
+ 'cooperation',
+ 'coopt',
+ 'cooptation',
+ 'dependence',
+ 'dependent',
+ 
+ 'diversification',
+ 'diversify',
+ 'dominance',
+ 'exchange',
+ 'external',
+ 'horizontal',
+ 'influence',
+ 'interdependence',
+ 'interdependent',
+ 'interlock',
+ 'interlocking',
+
+ 'merge',
+ 'merged',
+ 'merger',
+ 'network',
+ 'network',
+ 'power',
+ 'pressure',
+
+ 'sanction',
+ 'vertical')
+
+
+```
+
+
+
+```{r}
+
+
+
+cult.seed <- c('ceremonial',
+ 'coercion',
+ 'coercive',
+ 'conform',
+ 'conformity',
+ 'cultural',
+ 'decouple',
+ 'decoupled',
+ 'diffuse',
+ 'diffusion',
+ 'imitate',
+ 'imitation',
+ 'innovation',
+ 'institutional',
+ 'institutionalize',
+ 'institutionalize',
+
+ 'isomorphic',
+ 'isomorphism',
+ 'legitimacy',
+ 'legitimate',
+ 'legitimation',
+
+ 'mimetic',
+ 'norm',
+ 'normative',
+ 'norms',
+
+ 'profession',
+ 'professional',
+ 'rationalize',
+ 'rationalized',
+ 'ritual',
+
+ 'structuration',
+ 'taken granted')
+
+```
+
+
+
+
+```{r}
+pos_cult.sc <- get_centroid(cult.seed, emb)
+pos_rela.sc <- get_centroid(rela.seed, emb)
+pos_dem.sc <- get_centroid(dem.seed, emb)
+
+pos_cult_dist_centroid_with_cult_seed = CMDist(dtm = dfmat_pos_cult, cv = pos_cult.sc, wv = emb)
+pos_cult_dist_centroid_with_rela_seed = CMDist(dtm = dfmat_pos_cult, cv = pos_rela.sc, wv = emb)
+pos_cult_dist_centroid_with_dem_seed = CMDist(dtm = dfmat_pos_cult, cv = pos_dem.sc, wv = emb)
+
+neg_cult_dist_centroid_with_cult_seed = CMDist(dtm = dfmat_neg_cult, cv = pos_cult.sc, wv = emb)
+neg_cult_dist_centroid_with_rela_seed = CMDist(dtm = dfmat_neg_cult, cv = pos_rela.sc, wv = emb)
+neg_cult_dist_centroid_with_dem_seed = CMDist(dtm = dfmat_neg_cult, cv = pos_dem.sc, wv = emb)
+
+
+pos_dem_dist_centroid_with_cult_seed = CMDist(dtm = dfmat_pos_dem, cv = pos_cult.sc, wv = emb)
+pos_dem_dist_centroid_with_rela_seed = CMDist(dtm = dfmat_pos_dem, cv = pos_rela.sc, wv = emb)
+pos_dem_dist_centroid_with_dem_seed = CMDist(dtm = dfmat_pos_dem, cv = pos_dem.sc, wv = emb)
+
+neg_dem_dist_centroid_with_cult_seed = CMDist(dtm = dfmat_neg_dem, cv = pos_cult.sc, wv = emb)
+neg_dem_dist_centroid_with_rela_seed = CMDist(dtm = dfmat_neg_dem, cv = pos_rela.sc, wv = emb)
+neg_dem_dist_centroid_with_dem_seed = CMDist(dtm = dfmat_neg_dem, cv = pos_dem.sc, wv = emb)
+
+pos_rela_dist_centroid_with_cult_seed = CMDist(dtm = dfmat_pos_rela, cv = pos_cult.sc, wv = emb)
+pos_rela_dist_centroid_with_rela_seed = CMDist(dtm = dfmat_pos_rela, cv = pos_rela.sc, wv = emb)
+pos_rela_dist_centroid_with_dem_seed = CMDist(dtm = dfmat_pos_rela, cv = pos_dem.sc, wv = emb)
+
+neg_rela_dist_centroid_with_cult_seed = CMDist(dtm = dfmat_neg_rela, cv = pos_cult.sc, wv = emb)
+neg_rela_dist_centroid_with_rela_seed = CMDist(dtm = dfmat_neg_rela, cv = pos_rela.sc, wv = emb)
+neg_rela_dist_centroid_with_dem_seed = CMDist(dtm = dfmat_neg_rela, cv = pos_dem.sc, wv = emb)
+
+```
+
+
+```{r}
+p1=hist(pos_cult_dist_centroid_with_cult_seed[,2])
+p2=hist(neg_cult_dist_centroid_with_cult_seed[,2])
+plot( p1, col=rgb(0,0,1,1/4), main="Didstribution of positive vs. negative cultural cwmd scores")  # first histogram
+plot( p2, col=rgb(1,0,0,1/4), add=T)  # second
+
+legend("topright", c("negative", "positive"), col=c("purple", "red"), lwd=10)
+
+```
+
+
+
+```{r}
+p1=hist(pos_rela_dist_centroid_with_rela_seed[,2])
+p2=hist(neg_rela_dist_centroid_with_rela_seed[,2])
+plot( p1, col=rgb(0,0,1,1/4), main="Didstribution of positive vs. negative relational cwmd scores")  # first histogram
+plot( p2, col=rgb(1,0,0,1/4), add=T)  # second
+
+legend("topright", c("negative", "positive"), col=c("purple", "red"), lwd=10)
+
+```
+
+```{r}
+p1=hist(pos_dem_dist_centroid_with_dem_seed[,2])
+p2=hist(neg_dem_dist_centroid_with_dem_seed[,2])
+plot( p1, col=rgb(0,0,1,1/4), main="Didstribution of positive vs. negative demographic cwmd scores")  # first histogram
+plot( p2, col=rgb(1,0,0,1/4), add=T)  # second
+
+legend("topright", c("negative", "positive"), col=c("purple", "red"), lwd=10)
+
+```
+
+
+
+```{r}
+
+neg_cult_sample$cult_cwmd_scores = neg_cult_dist_centroid_with_cult_seed$ceremonial_centroid
+neg_cult_sample$dem_cwmd_scores =  neg_cult_dist_centroid_with_dem_seed$competition_centroid
+neg_cult_sample$rela_cwmd_scores =  neg_cult_dist_centroid_with_rela_seed$buffer_centroid
+
+```
+
+
+```{r}
+
+pos_cult_sample$cult_cwmd_scores=pos_cult_dist_centroid_with_cult_seed$ceremonial_centroid
+pos_cult_sample$dem_cwmd_scores =  pos_cult_dist_centroid_with_dem_seed$competition_centroid
+pos_cult_sample$rela_cwmd_scores =  pos_cult_dist_centroid_with_rela_seed$buffer_centroid
+
+```
+
+
+```{r}
+
+neg_rela_sample$cult_cwmd_scores= neg_rela_dist_centroid_with_cult_seed$ceremonial_centroid
+neg_rela_sample$dem_cwmd_scores =  neg_rela_dist_centroid_with_dem_seed$competition_centroid
+neg_rela_sample$rela_cwmd_scores =  neg_rela_dist_centroid_with_rela_seed$buffer_centroid
+
+
+```
+
+
+```{r}
+
+pos_rela_sample$cult_cwmd_scores= pos_rela_dist_centroid_with_cult_seed$ceremonial_centroid
+pos_rela_sample$dem_cwmd_scores =  pos_rela_dist_centroid_with_dem_seed$competition_centroid
+pos_rela_sample$rela_cwmd_scores =  pos_rela_dist_centroid_with_rela_seed$buffer_centroid
+
+```
+
+
+```{r}
+
+neg_dem_sample$cult_cwmd_scores= neg_dem_dist_centroid_with_cult_seed$ceremonial_centroid
+neg_dem_sample$dem_cwmd_scores =  neg_dem_dist_centroid_with_dem_seed$competition_centroid
+neg_dem_sample$rela_cwmd_scores =  neg_dem_dist_centroid_with_rela_seed$buffer_centroid
+
+
+```
+
+
+```{r}
+
+pos_dem_sample$cult_cwmd_scores= pos_dem_dist_centroid_with_cult_seed$ceremonial_centroid
+pos_dem_sample$dem_cwmd_scores =  pos_dem_dist_centroid_with_dem_seed$competition_centroid
+pos_dem_sample$rela_cwmd_scores =  pos_dem_dist_centroid_with_rela_seed$buffer_centroid
+
+```
+
+
+
+
+## Normalize scores
+
+
+```{r}
+pos_dem_sample[,c('normalized_cult_cwmd_scores', 'normalized_dem_cwmd_scores', 'normalized_rela_cwmd_scores')] = 1-t(apply(pos_dem_sample[,c('cult_cwmd_scores', 'dem_cwmd_scores', 'rela_cwmd_scores')], 1, function(x)(x-min(x))/(max(x)-min(x))))
+
+neg_dem_sample[,c('normalized_cult_cwmd_scores', 'normalized_dem_cwmd_scores', 'normalized_rela_cwmd_scores')] = 1-t(apply(neg_dem_sample[,c('cult_cwmd_scores', 'dem_cwmd_scores', 'rela_cwmd_scores')], 1, function(x)(x-min(x))/(max(x)-min(x))))
+```
+
+
+```{r}
+
+pos_cult_sample[,c('normalized_cult_cwmd_scores', 'normalized_dem_cwmd_scores', 'normalized_rela_cwmd_scores')] = 1-t(apply(pos_cult_sample[,c('cult_cwmd_scores', 'dem_cwmd_scores', 'rela_cwmd_scores')], 1, function(x)(x-min(x))/(max(x)-min(x))))
+
+neg_cult_sample[,c('normalized_cult_cwmd_scores', 'normalized_dem_cwmd_scores', 'normalized_rela_cwmd_scores')] = 1-t(apply(neg_cult_sample[,c('cult_cwmd_scores', 'dem_cwmd_scores', 'rela_cwmd_scores')], 1, function(x)(x-min(x))/(max(x)-min(x))))
+
+```
+
+```{r}
+
+pos_rela_sample[,c('normalized_cult_cwmd_scores', 'normalized_dem_cwmd_scores', 'normalized_rela_cwmd_scores')] = 1-t(apply(pos_rela_sample[,c('cult_cwmd_scores', 'dem_cwmd_scores', 'rela_cwmd_scores')], 1, function(x)(x-min(x))/(max(x)-min(x))))
+
+neg_rela_sample[,c('normalized_cult_cwmd_scores', 'normalized_dem_cwmd_scores', 'normalized_rela_cwmd_scores')] = 1-t(apply(neg_rela_sample[,c('cult_cwmd_scores', 'dem_cwmd_scores', 'rela_cwmd_scores')], 1, function(x)(x-min(x))/(max(x)-min(x))))
+
+```
+
+
+
+
+```{r}
+p1=hist(pos_cult_sample[,'normalized_cult_cwmd_scores'])
+p2=hist(neg_cult_sample[,'normalized_cult_cwmd_scores'])
+plot( p1, col=rgb(0,0,1,1/4), main="Didstribution of positive vs. negative cultural cwmd scores")  # first histogram
+plot( p2, col=rgb(1,0,0,1/4), add=T)  # second
+
+legend("topright", c("negative", "positive"), col=c("purple", "red"), lwd=10)
+
+```
+
+```{r}
+p1=hist(pos_dem_sample[,'normalized_dem_cwmd_scores'])
+p2=hist(neg_dem_sample[,'normalized_dem_cwmd_scores'])
+plot( p1, col=rgb(0,0,1,1/4), main="Didstribution of positive vs. negative demographic cwmd scores")  # first histogram
+plot( p2, col=rgb(1,0,0,1/4), add=T)  # second
+
+legend("topright", c("negative", "positive"), col=c("purple", "red"), lwd=10)
+
+```
+
+```{r}
+p1=hist(pos_rela_sample[,'normalized_rela_cwmd_scores'])
+p2=hist(neg_rela_sample[,'normalized_rela_cwmd_scores'])
+plot( p1, col=rgb(0,0,1,1/4), main="Didstribution of positive vs. negative relational cwmd scores")  # first histogram
+plot( p2, col=rgb(1,0,0,1/4), add=T)  # second
+
+legend("topright", c("negative", "positive"), col=c("purple", "red"), lwd=10)
+
+```
+
+
+
+```{r}
+
+write.csv(pos_cult_sample,'/Users/nancyxu/Desktop/complit/pos_cult_sample_cwmd_df.csv')
+write.csv(neg_cult_sample,'/Users/nancyxu/Desktop/complit/neg_cult_sample_cwmd_df.csv')
+
+write.csv(pos_rela_sample,'/Users/nancyxu/Desktop/complit/pos_rela_sample_cwmd_df.csv')
+write.csv(neg_rela_sample,'/Users/nancyxu/Desktop/complit/neg_rela_sample_cwmd_df.csv')
+
+write.csv(pos_dem_sample,'/Users/nancyxu/Desktop/complit/pos_dem_sample_cwmd_df.csv')
+write.csv(neg_dem_sample,'/Users/nancyxu/Desktop/complit/neg_dem_sample_cwmd_df.csv')
+```
+
+
+
+
+
+
+
+
