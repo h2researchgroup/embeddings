@@ -15,3 +15,6 @@ This code takes in JSTOR OCR raw text and expert-generated dictionaries, compute
 * trend of cosine score and ratio: <a href="validate/viz_patterns_coredict_ratios_cosines_normalized.ipynb">validate/viz_patterns_coredict_ratios_cosines_normalized.ipynb</a>
 * trend of cosine score (updated publication year): <a href="validate/viz_trend_by_year.ipynb">validate/viz_trend_by_year.ipynb</a>
 
+#### Clustering:
+* Notebook to view hierarchical clusters based on seed dictionaries divided by decade:
+    * <a href="clustering/hierarchical_by_decade.ipynb">clustering/hierarchical_by_decade.ipynb</a>
