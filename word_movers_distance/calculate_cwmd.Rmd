@@ -4,6 +4,19 @@ output: html_document
 date: "2022-09-30"
 ---
 
+## Description
+This Rmd uses pre-trained w2v model to get concept word mover's distance between each article and the centroid of each perspective. 
+
+## Inputs
+
+-> models_storage/w2v_models/w2v_model_1103.bin
+-> dataframes of sample of 20 articles for each perspective (neg_cult_sample_wmd_cos.csv and similar csv's)
+-> core seed terms for each perspective
+
+## Outputs
+-> dataframes of articles with cwmd scores (pos_cult_sample_cwmd_df.csv and similar csv's) (later processed and normalized in Calculate_WMD_cos_scores_full.ipynb. For full sample, just use full df (i.e. neg_cult_full_wmd_cos.csv). 
+  
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
