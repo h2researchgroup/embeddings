@@ -36,6 +36,11 @@ from datetime import date # For working with dates & times
 import re # For parsing text
 from gensim.models import Word2Vec, KeyedVectors # for word embedding models
 
+# get base file paths
+root = getcwd() # current dir
+root = str.replace(cwd, 'embeddings/word2vec', '')
+thisday = date.today().strftime("%m%d%y")
+
 # import custom functions
 import sys; sys.path.insert(0, "../../classification/preprocess/")
 from file_utils import quickpickle_dump, quickpickle_load, write_textlist # for quick saving & loading to pickle format
@@ -45,29 +50,25 @@ from file_utils import quickpickle_dump, quickpickle_load, write_textlist # for 
 #              Define file paths              #
 ###############################################
 
-root = getcwd() # current dir
-root = str.replace(cwd, 'embeddings/word2vec', '')
-thisday = date.today().strftime("%m%d%y")
-
 # paths to raw text files
 jstor_fp = root + 'jstor_data/ocr'
 files = [jstor_fp + f for f in listdir(jstor_fp) if isfile(join(jstor_fp, f))]
 
 # path to preprocessed text data
 prepped_fp = root + 'models_storage/preprocessed_texts/'
-all_prepped_fp = prepped_fp + 'filtered_enchant_orgdict_preprocessed_texts_65365_121522.pkl'
-d1_prepped_fp = prepped_fp + 'filtered_enchant_orgdict_preprocessed_texts_1971-1981_16XXX_121522.pkl'
-d2_prepped_fp = prepped_fp + 'filtered_enchant_orgdict_preprocessed_texts_1982-1992_16XXX_121522.pkl'
-d3_prepped_fp = prepped_fp + 'filtered_enchant_orgdict_preprocessed_texts_1993-2003_16XXX_121522.pkl'
-d4_prepped_fp = prepped_fp + 'filtered_enchant_orgdict_preprocessed_texts_2004-2014_16XXX_121522.pkl'
+all_prepped_fp = prepped_fp + 'filtered_enchant_orgdict_preprocessed_texts_59098_121722.pkl'
+d1_prepped_fp = prepped_fp + 'filtered_enchant_orgdict_preprocessed_texts_1971-1981_8014_121722.pkl'
+d2_prepped_fp = prepped_fp + 'filtered_enchant_orgdict_preprocessed_texts_1982-1992_13245_121722.pkl'
+d3_prepped_fp = prepped_fp + 'filtered_enchant_orgdict_preprocessed_texts_1993-2003_17566_121722.pkl'
+d4_prepped_fp = prepped_fp + 'filtered_enchant_orgdict_preprocessed_texts_2004-2014_19825_121722.pkl'
 
 # filepaths to save word embedding model/vocab
 w2v_fp = root + 'models_storage/w2v_models/'
-model_full_fp = w2v_fp + f"word2vec_phrased_filtered_ALL_{numdims}d_{windows}w_{thisday}.bin"
-model_d1_fp = w2v_fp + f"word2vec_phrased_filtered_1971-1981_{numdims}d_{windows}w_{thisday}.bin"
-model_d2_fp = w2v_fp + f"word2vec_phrased_filtered_1982-1992_{numdims}d_{windows}w_{thisday}.bin"
-model_d3_fp = w2v_fp + f"word2vec_phrased_filtered_1993-2003_{numdims}d_{windows}w_{thisday}.bin"
-model_d4_fp = w2v_fp + f"word2vec_phrased_filtered_2004-2014_{numdims}d_{windows}w_{thisday}.bin"
+model_full_fp = w2v_fp + f"word2vec_ALLYEARS_phrased_filtered_enchant_orgdict_{numdims}d_{windows}w_{thisday}.bin"
+model_d1_fp = w2v_fp + f"word2vec_1971-1981_phrased_filtered_enchant_orgdict_{numdims}d_{windows}w_{thisday}.bin"
+model_d2_fp = w2v_fp + f"word2vec_1982-1992_phrased_filtered_enchant_orgdict_{numdims}d_{windows}w_{thisday}.bin"
+model_d3_fp = w2v_fp + f"word2vec_1993-2003_phrased_filtered_enchant_orgdict_{numdims}d_{windows}w_{thisday}.bin"
+model_d4_fp = w2v_fp + f"word2vec_2004-2014_phrased_filtered_enchant_orgdict_{numdims}d_{windows}w_{thisday}.bin"
 
 
 ###############################################
