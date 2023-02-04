@@ -3,8 +3,8 @@ This code takes in JSTOR OCR raw text and expert-generated dictionaries, compute
 
 ## Guide to Codebase
 #### Word2Vec:
-*  script for proprocessing texts and training w2v models: <a href="word2vec/word2vec.py">word2vec/word2vec.py</a>
-*  script for preprocesses training texts, and creating decade-specific word2vec embeddings: <a href="word2vec/clean_text_train_decade_word2vec.ipynb">word2vec/clean_text_train_decade_word2vec.ipynb</a>
+*  script for training full and decade-specific word2vec models: <a href="word2vec/word2vec_train.py">word2vec/word2vec_train.py</a>
+*  template notebook for exploring word2vec model running, with a full preprocessing workflow and decade-specific training: <a href="word2vec/w2v_nb_template_workflow.ipynb">word2vec/w2v_nb_template_workflow.ipynb</a>
 
 #### Dictionary Method:
 * script to use the w2v model to expand seed vocab:  <a href="refine_dictionaries/expand_dictonary_and_visualize.ipynb">refine_dictionaries/expand_dictonary_and_visualize.ipynb</a>
