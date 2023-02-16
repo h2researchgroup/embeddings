@@ -134,7 +134,7 @@ ax.legend(handles[::-1], labels[::-1], loc='upper center', bbox_to_anchor=(0.5, 
 
 fig.set_size_inches(8, 6)
 thisday = date.today().strftime("%m%d%y") # get current date
-title = f"ratio_all_sociology_{thisday}"
+title = f"ratio_all_sociology_mean_{thisday}"
 plt.savefig(join(FIGURES_HOME, title + ".png"), dpi=1200, bbox_inches="tight")
 plt.close()
 
@@ -150,7 +150,7 @@ ax.legend(handles[::-1], labels[::-1], loc='upper center', bbox_to_anchor=(0.5, 
 
 fig.set_size_inches(8, 6)
 thisday = date.today().strftime("%m%d%y") # get current date
-title = f"ratio_all_sociology_{thisday}"
+title = f"ratio_all_management_mean_{thisday}"
 plt.savefig(join(FIGURES_HOME, title + ".png"), dpi=1200, bbox_inches="tight")
 plt.close()
 
@@ -166,7 +166,7 @@ ax.legend(handles[::-1], labels[::-1], loc='upper center', bbox_to_anchor=(0.5, 
 
 fig.set_size_inches(8, 6)
 thisday = date.today().strftime("%m%d%y") # get current date
-title = f"ratio_all_sociology_{thisday}"
+title = f"ratio_all_sociology_median_{thisday}"
 plt.savefig(join(FIGURES_HOME, title + ".png"), dpi=1200, bbox_inches="tight")
 plt.close()
 
@@ -182,7 +182,7 @@ ax.legend(handles[::-1], labels[::-1], loc='upper center', bbox_to_anchor=(0.5, 
 
 fig.set_size_inches(8, 6)
 thisday = date.today().strftime("%m%d%y") # get current date
-title = f"ratio_all_sociology_{thisday}"
+title = f"ratio_all_management_median_{thisday}"
 plt.savefig(join(FIGURES_HOME, title + ".png"), dpi=1200, bbox_inches="tight")
 plt.close()
 
@@ -221,7 +221,7 @@ ax.legend(handles[::-1], labels[::-1], loc='upper center', bbox_to_anchor=(0.5, 
 
 fig.set_size_inches(8, 6)
 thisday = date.today().strftime("%m%d%y") # get current date
-title = f"ratio_cultural_mgmt_{thisday}"
+title = f"ratio_cultural_management_{thisday}"
 plt.savefig(join(FIGURES_HOME, title + ".png"), dpi=1200, bbox_inches="tight")
 plt.close()
 
