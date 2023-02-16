@@ -6,23 +6,11 @@
 @PI: Prof. Heather Haveman, UC Berkeley
 @date_modified: February 2023
 @contact: jhaber@berkeley.edu
-@inputs: file with counts of each perspective per year list of authors OR list of terms per perspective, list of article filepaths 
-@outputs: count of authors ((citations_by_persp|dicts)_count_{thisdate}.csv), where 'thisdate' is in mmddyy format 
-@usage: run `python3 dict_count_all.py` from within `dictionary_methods/code`
-@description: Counts mentions of perspectives--summed over individual words or authors--in articles by using ngram files ACROSS ALL YEARS OF DATA. To count a new list of terms or author names in the ngram files, change the list of words in the 'Update Words' section and/or change the word type to count (between 'citations' and 'terms', i.e. dictionaries), then run the script. 
+@inputs: file with counts of each perspective per year 
+@outputs: seven plots: One for all perspectives in Sociology by mean/median (two plots), one for all perspectives in Management by mean/median (two plots), one for each perspective in Sociology (by 25th/50th/75th percentile; three plots), and one for each perspective in Management (by 25th/50th/75th percentile; three plots).
+@usage: run `python3 viz_trend_by_year.py` from within `embeddings/validate`
+@description: Visualizes the ratio trend over the years for Sociology and Management/OB. 
 '''
-
-# Computational Literature Review
-# 
-# Creator: Jaren Haber, PhD, Nancy Xu
-# 
-# Date created: November 13, 2020
-# 
-# Date last modified: April 11, 2022
-# 
-# This notebook visualize the ratio and cosine trend over the years with corrected year data.
-
-# In[1]:
 
 
 ###############################################
@@ -123,8 +111,13 @@ df_50_long_mgmt['Perspective'] = np.select(persp_conditions, persp_values)
 
 print('Visualizing all perspectives...')
 
+# org ecol = blue dashed line, res depce = red dotted line with dots for points, org instl = green solid line
+custom_palette = ['red', 'green', 'blue']
+
 # All perspectives: Sociology (mean)
-ax = sns.lineplot(x="Year", y="Engagement", data=df_avg_long_soc, hue = 'Perspective')
+ax = sns.lineplot(x="Year", y="Engagement", data=df_avg_long_soc, 
+                  hue='Perspective', style='Perspective', palette=custom_palette)
+                  
 ax.set(xlabel='Year', ylabel='Engagement')
 ax.set(ylim=(0.0, 0.09))
 
@@ -140,7 +133,8 @@ plt.close()
 
 
 # All perspectives: Management (mean)
-ax = sns.lineplot(x="Year", y="Engagement", data=df_avg_long_mgmt, hue = 'Perspective')
+ax = sns.lineplot(x="Year", y="Engagement", data=df_avg_long_mgmt, 
+                  hue='Perspective', style='Perspective', palette=custom_palette)
 ax.set(xlabel='Year', ylabel='Engagement')
 ax.set(ylim=(0.0, 0.09))
 
@@ -156,7 +150,8 @@ plt.close()
 
 
 # All perspectives: Sociology (median)
-ax = sns.lineplot(x="Year", y="Engagement", data=df_50_long_soc, hue = 'Perspective')
+ax = sns.lineplot(x="Year", y="Engagement", data=df_50_long_soc, 
+                  hue='Perspective', style='Perspective', palette=custom_palette)
 ax.set(xlabel='Year', ylabel='Engagement')
 ax.set(ylim=(0.0, 0.06))
 
@@ -172,7 +167,8 @@ plt.close()
 
 
 # All perspectives: Management (median)
-ax = sns.lineplot(x="Year", y="Engagement", data=df_50_long_mgmt, hue = 'Perspective')
+ax = sns.lineplot(x="Year", y="Engagement", data=df_50_long_mgmt, 
+                  hue='Perspective', style='Perspective', palette=custom_palette)
 ax.set(xlabel='Year', ylabel='Engagement')
 ax.set(ylim=(0.0, 0.06))
 
@@ -194,7 +190,8 @@ plt.close()
 print('Visualizing percentiles...')
 
 # Cultural: Sociology
-ax = sns.lineplot(x="publicationYear", y="cultural_ratio", data=df_sociology, hue = 'percentile')
+ax = sns.lineplot(x="publicationYear", y="cultural_ratio", data=df_sociology, 
+                  hue='percentile', style='percentile', palette=custom_palette)
 ax.set(xlabel='Year', ylabel='Engagement')
 ax.set(ylim=(0.0, 0.11))
 
@@ -211,7 +208,8 @@ plt.close()
 
 # Cultural: Management/OB
 df_management = df_management[~df_management['publicationYear'].isin([1970,2016])]
-ax = sns.lineplot(x="publicationYear", y="cultural_ratio", data=df_management, hue = 'percentile')
+ax = sns.lineplot(x="publicationYear", y="cultural_ratio", data=df_management, 
+                  hue='percentile', style='percentile', palette=custom_palette)
 ax.set(xlabel='Year', ylabel='Engagement')
 ax.set(ylim=(0.0, 0.11))
 
@@ -227,7 +225,8 @@ plt.close()
 
 
 # Demographic: Sociology
-ax = sns.lineplot(x="publicationYear", y="demographic_ratio", data=df_sociology, hue = 'percentile')
+ax = sns.lineplot(x="publicationYear", y="demographic_ratio", data=df_sociology, 
+                  hue='percentile', style='percentile', palette=custom_palette)
 ax.set(xlabel='Year', ylabel='Engagement')
 ax.set(ylim=(0.0, 0.11))
 
@@ -242,7 +241,8 @@ plt.close()
 
 
 # Demographic: Management
-ax = sns.lineplot(x="publicationYear", y="demographic_ratio", data=df_management, hue = 'percentile')
+ax = sns.lineplot(x="publicationYear", y="demographic_ratio", data=df_management, 
+                  hue='percentile', style='percentile', palette=custom_palette)
 ax.set(xlabel='Year', ylabel='Engagement')
 ax.set(ylim=(0.0, 0.11))
 
@@ -257,7 +257,8 @@ plt.close()
 
 
 # Relational: Sociology
-ax = sns.lineplot(x="publicationYear", y="relational_ratio", data=df_sociology, hue = 'percentile')
+ax = sns.lineplot(x="publicationYear", y="relational_ratio", data=df_sociology, 
+                  hue='percentile', style='percentile', palette=custom_palette)
 ax.set(xlabel='Year', ylabel='Engagement')
 ax.set(ylim=(0.0, 0.11))
 
@@ -272,7 +273,8 @@ plt.close()
 
 
 # Relational: Management
-ax = sns.lineplot(x="publicationYear", y="relational_ratio", data=df_management, hue = 'percentile')
+ax = sns.lineplot(x="publicationYear", y="relational_ratio", data=df_management, 
+                  hue='percentile', style='percentile', palette=custom_palette)
 ax.set(xlabel='Year', ylabel='Engagement')
 ax.set(ylim=(0.0, 0.11))
 
