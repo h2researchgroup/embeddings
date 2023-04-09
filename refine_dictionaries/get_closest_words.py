@@ -18,7 +18,7 @@
 @script inputs: 
 - work_dir (-w) --> the current directory you're working with, it should be one level higher than models_storage and dictionary_methods
 - output_dir (-o) --> the directory where you want to store the csv dataframes
-- get_expanded_or_refined (-e) --> output csv's for expanded terms or refined terms 
+- get_expanded_or_refined (-e) --> output csvs with similar terms for expanded dictionaries (500 terms) or refined dictionaries (50 terms) 
     - 1 = expanded (500 closest terms to core dictionaries)
     - 2 = refined (50-term, hand-cleaned dicts)
     - 3 = both
@@ -27,56 +27,15 @@
 - stored in output_dir, csv dataframes containing cosine similarities of expanded dicts (500) for each decade and each perspective (12 total)
 - stored in output_dir, csv dataframes containing cosine similarities of refined dicts for each decade and each perspective (12 total) 
 
-@example usage: python3 get_closest_words.py -w "../.." -o "./out" -e 1
+
+@usage: python3 get_closest_words.py -w <path-to-work-dir> -o <path-to-output-dir> -e <get-expanded-or-refined> 
 
 ------------------------------------------------------------------------------------------------
 
-@files used:
-
-decade w2v models
-- /models_storage/w2v_models/word2vec_1971-1981_phrased_filtered_enchant_orgdict_300d_10w_020423.bin
-- /models_storage/w2v_models/word2vec_1982-1992_phrased_filtered_enchant_orgdict_300d_10w_020423.bin
-- /models_storage/w2v_models/word2vec_1993-2003_phrased_filtered_enchant_orgdict_300d_10w_020423.bin
-- /models_storage/w2v_models/word2vec_2004-2014_phrased_filtered_enchant_orgdict_300d_10w_020423.bin
-
-all years w2v model
-- /models_storage/w2v_models/word2vec_ALLYEARS_phrased_filtered_enchant_orgdict_300d_10w_020423.bin
-
-core dictionaries
-cult_core = '/dictionary_methods/dictionaries/core/cultural_core.csv'
-dem_core = '/dictionary_methods/dictionaries/core/demographic_core.csv'
-relt_core = '/dictionary_methods/dictionaries/core/relational_core.csv'
-
-
-expanded decade dictionaries
-
-1971-1981:
-
-cult_expanded_1 = '/dictionary_methods/dictionaries/expanded_decades/cultural_1971_1981.txt'
-dem_expanded_1 = '/dictionary_methods/dictionaries/expanded_decades/demographic_1971_1981.txt'
-relt_expanded_1 = '/dictionary_methods/dictionaries/expanded_decades/relational_1971_1981.txt'
-
-
-1982-1992:
-
-cult_expanded_2 = '/dictionary_methods/dictionaries/expanded_decades/cultural_1982_1992.txt'
-dem_expanded_2 = '/dictionary_methods/dictionaries/expanded_decades/demographic_1982_1992.txt'
-relt_expanded_2 = '/dictionary_methods/dictionaries/expanded_decades/relational_1982_1992.txt'
-
-
-1993-2003:
-
-cult_expanded_3 = '/dictionary_methods/dictionaries/expanded_decades/cultural_1993_2003.txt'
-dem_expanded_3 = '/dictionary_methods/dictionaries/expanded_decades/demographic_1993_2003.txt'
-relt_expanded_3 = '/dictionary_methods/dictionaries/expanded_decades/relational_1993_2003.txt'
-
-
-2004-2014:
-
-cult_expanded_4 = '/dictionary_methods/dictionaries/expanded_decades/cultural_2004_2014.txt'
-dem_expanded_4 = '/dictionary_methods/dictionaries/expanded_decades/demographic_2004_2014.txt'
-relt_expanded_4 = '/dictionary_methods/dictionaries/expanded_decades/relational_2004_2014.txt'
-
+@files used (see specific file paths in the "define filepaths section"):
+- decade w2v models
+- core dictionaries
+- expanded decade dictionaries
 
 
 '''
@@ -89,6 +48,7 @@ import sklearn.metrics
 import numpy as np
 import os
 import argparse
+from os.path import join
 
 
 parser = argparse.ArgumentParser()
@@ -105,50 +65,92 @@ output_dir = str(args.output_dir)
 get_expanded_or_refined = int(args.get_expanded_or_refined)
 
 
+####################################
+###### define filepaths
+####################################
+
+## models
+models_dir = join(work_dir, 'models_storage/w2v_models')
+w2v_1970s_fp = join(models_dir, 'word2vec_1971-1981_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
+w2v_1980s_fp = join(models_dir, 'word2vec_1982-1992_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
+w2v_1990s_fp = join(models_dir, 'word2vec_1993-2003_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
+w2v_2000s_fp = join(models_dir, 'word2vec_2004-2014_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
+w2v_all_decades_fp = join(models_dir,'word2vec_ALLYEARS_phrased_filtered_enchant_orgdict_300d_10w_020423.bin') 
+
+
+## dicts
+dicts_dir = join(work_dir, 'dictionary_methods/dictionaries')
+
+
+## core dicts
+core_dicts_dir = join(dicts_dir, 'core')
+cult_core_fp = join(core_dicts_dir, 'cultural_core.csv')
+dem_core_fp = join(core_dicts_dir, 'demographic_core.csv')
+relt_core_fp = join(core_dicts_dir, 'relational_core.csv')
+
+
+## refined dicts
+refined_dicts_dir = join(dicts_dir, 'expanded_decades')
+
+cult_refined_decade_1_fp = join(refined_dicts_dir, 'cultural_1971_1981.txt')
+dem_refined_decade_1_fp = join(refined_dicts_dir, 'demographic_1971_1981.txt')
+relt_refined_decade_1_fp = join(refined_dicts_dir, 'relational_1971_1981.txt')
+
+cult_refined_decade_2_fp = join(refined_dicts_dir, 'cultural_1982_1992.txt')
+dem_refined_decade_2_fp = join(refined_dicts_dir, 'demographic_1982_1992.txt')
+relt_refined_decade_2_fp = join(refined_dicts_dir, 'relational_1982_1992.txt')
+
+cult_refined_decade_3_fp = join(refined_dicts_dir, 'cultural_1993_2003.txt')
+dem_refined_decade_3_fp = join(refined_dicts_dir, 'demographic_1993_2003.txt')
+relt_refined_decade_3_fp = join(refined_dicts_dir, 'relational_1993_2003.txt')
+
+cult_refined_decade_4_fp = join(refined_dicts_dir, 'cultural_2004_2014.txt')
+dem_refined_decade_4_fp = join(refined_dicts_dir, 'demographic_2004_2014.txt')
+relt_refined_decade_4_fp = join(refined_dicts_dir, 'relational_2004_2014.txt')
+
 
 ####################################
 ###### load in decade specific models
 ####################################
 
-m1 = KeyedVectors.load(work_dir+'/models_storage/w2v_models/word2vec_1971-1981_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
-m2 = KeyedVectors.load(work_dir+'/models_storage/w2v_models/word2vec_1982-1992_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
-m3 = KeyedVectors.load(work_dir+'/models_storage/w2v_models/word2vec_1993-2003_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
-m4 = KeyedVectors.load(work_dir+'/models_storage/w2v_models/word2vec_2004-2014_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
-ma =  KeyedVectors.load(work_dir+'/models_storage/w2v_models/word2vec_ALLYEARS_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
+m1 = KeyedVectors.load(w2v_1970s_fp)
+m2 = KeyedVectors.load(w2v_1980s_fp)
+m3 = KeyedVectors.load(w2v_1990s_fp)
+m4 = KeyedVectors.load(w2v_2000s_fp)
+ma = KeyedVectors.load(w2v_all_decades_fp)
 
 
 ####################################
 ###### load in core dictionaries
 ####################################
 
-cult_core = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/core/cultural_core.csv', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-dem_core = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/core/demographic_core.csv', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-relt_core = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/core/relational_core.csv', header=None)[0].apply(lambda x: x.replace(' ', '_')))
+cult_core = list(pd.read_csv(cult_core_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
+dem_core = list(pd.read_csv(dem_core_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
+relt_core = list(pd.read_csv(relt_core_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 
 
 ####################################
 ###### load in expanded decade dictionaries
 ####################################
 
-cult_refined_1 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/cultural_1971_1981.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-dem_refined_1 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/demographic_1971_1981.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-relt_refined_1 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/relational_1971_1981.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
+cult_refined_1 = list(pd.read_csv(cult_refined_decade_1_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
+dem_refined_1 = list(pd.read_csv(dem_refined_decade_1_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
+relt_refined_1 = list(pd.read_csv(relt_refined_decade_1_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 
+cult_refined_2 = list(pd.read_csv(cult_refined_decade_2_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
+dem_refined_2 = list(pd.read_csv(dem_refined_decade_2_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
+relt_refined_2 = list(pd.read_csv(relt_refined_decade_2_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 
-cult_refined_2 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/cultural_1982_1992.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-dem_refined_2 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/demographic_1982_1992.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-relt_refined_2 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/relational_1982_1992.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
+cult_refined_3 = list(pd.read_csv(cult_refined_decade_3_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
+dem_refined_3 = list(pd.read_csv(dem_refined_decade_3_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
+relt_refined_3 = list(pd.read_csv(relt_refined_decade_3_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 
-cult_refined_3 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/cultural_1993_2003.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-dem_refined_3 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/demographic_1993_2003.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-relt_refined_3 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/relational_1993_2003.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-
-cult_refined_4 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/cultural_2004_2014.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-dem_refined_4 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/demographic_2004_2014.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
-relt_refined_4 = list(pd.read_csv(work_dir+'/dictionary_methods/dictionaries/expanded_decades/relational_2004_2014.txt', header=None)[0].apply(lambda x: x.replace(' ', '_')))
+cult_refined_4 = list(pd.read_csv(cult_refined_decade_4_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
+dem_refined_4 = list(pd.read_csv(dem_refined_decade_4_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
+relt_refined_4 = list(pd.read_csv(relt_refined_decade_4_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 
 ####################################
-###### functions
+###### define functions
 ####################################
 
 def remove_terms(seed_lst, m):
@@ -290,11 +292,7 @@ def get_results_decade(model, cult_core, dem_core, relt_core, cult_dict, dem_dic
 
 
 
-####################################
-###### get similarities of expanded dicts (500)
-####################################
-
-def save_expanded_dicts_df():
+def get_results_save_expanded(output_dir):
     '''
     save csv's for the similarity metrics of expanded (500) terms
     '''
@@ -308,7 +306,7 @@ def save_expanded_dicts_df():
 
     cult_exp4, dem_exp4, relt_exp4=get_results_decade(m4, cult_core, dem_core, relt_core, [], [], [], get_500=True)
 
-    cult_exp1.to_csv(output_dir+"/cos_sim_df_expanded_500_cult_1971-1981.csv")
+    cult_exp1.to_csv(join(output_dir,"/cos_sim_df_expanded_500_cult_1971-1981.csv"))
     dem_exp1.to_csv(output_dir+"/cos_sim_df_expanded_500_dem_1971-1981.csv")
     relt_exp1.to_csv(output_dir+"/cos_sim_df_expanded_500_relt_1971-1981.csv")
 
@@ -325,12 +323,7 @@ def save_expanded_dicts_df():
     relt_exp4.to_csv(output_dir+"/cos_sim_df_expanded_500_relt_2004_2014.csv")
 
 
-####################################
-###### get similarities of refined dicts
-####################################
-
-
-def save_refined_dicts_df():
+def get_results_save_refined(output_dir):
     '''
     save csv's for the similarity metrics of refined (50) terms
     '''
@@ -359,15 +352,14 @@ def save_refined_dicts_df():
     cult_ref4.to_csv(output_dir+"/cos_sim_df_refined_cult_2004_2014.csv")
     dem_ref4.to_csv(output_dir+"/cos_sim_df_refined_dem_2004_2014.csv")
     relt_ref4.to_csv(output_dir+"/cos_sim_df_refined_relt_2004_2014.csv")
-    
-    
+     
 if get_expanded_or_refined == 1:
     ### only get df for expanded (500) dicts
-    save_expanded_dicts_df()
+    get_results_save_expanded(output_dir)
 elif get_expanded_or_refined == 2:
      ### only get df for refined (50) dicts
-    save_refined_dicts_df()
+    get_results_save_refined(output_dir)
 else:
     ### both
-    save_expanded_dicts_df()
-    save_refined_dicts_df()
+    get_results_save_expanded(output_dir)
+    get_results_save_refined(output_dir)
