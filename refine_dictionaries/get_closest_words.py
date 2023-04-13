@@ -149,6 +149,7 @@ cult_refined_4 = list(pd.read_csv(cult_refined_decade_4_fp, header=None)[0].appl
 dem_refined_4 = list(pd.read_csv(dem_refined_decade_4_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 relt_refined_4 = list(pd.read_csv(relt_refined_decade_4_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 
+
 ####################################
 ###### define functions
 ####################################
@@ -352,7 +353,12 @@ def get_results_save_refined(output_dir):
     cult_ref4.to_csv(output_dir+"/cos_sim_df_refined_cult_2004_2014.csv")
     dem_ref4.to_csv(output_dir+"/cos_sim_df_refined_dem_2004_2014.csv")
     relt_ref4.to_csv(output_dir+"/cos_sim_df_refined_relt_2004_2014.csv")
-     
+
+
+####################################
+###### get similarities of refined dicts
+####################################
+
 if get_expanded_or_refined == 1:
     ### only get df for expanded (500) dicts
     get_results_save_expanded(output_dir)
