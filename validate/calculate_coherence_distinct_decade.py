@@ -316,7 +316,7 @@ cohere_results_ref['relt'] = [rela_1970_cohere_ref,rela_1980_cohere_ref,rela_199
 cohere_results_ref.columns = ['dem', 'cult', 'relt']
 cohere_results_ref=cohere_results_ref.set_axis(years)
 
-cohere_results_ref.to_csv(join(output_dir, 'cohere_results_ref.csv'))
+cohere_results_ref.to_csv(join(output_dir, 'cohere_results_expanded.csv'))
 
 cohere_results = pd.DataFrame([dem_1970_cohere,dem_1980_cohere,dem_1990_cohere,dem_2000_cohere])
 cohere_results['cult'] = [cult_1970_cohere,cult_1980_cohere,cult_1990_cohere,cult_2000_cohere]
@@ -351,14 +351,12 @@ plt.grid()
 
 filepath = join(output_dir, 'coherence_score_expanded_dict' + ".png")
 plt.savefig(filepath, bbox_inches='tight', dpi= 600)
+plt.close()
 
 # graph coherence score for core decade dicts
 
-import matplotlib.pyplot as plt
 plt.plot(years,[dem_1970_cohere,dem_1980_cohere,dem_1990_cohere,dem_2000_cohere],'--', label='Organizational Ecology', color = 'green')
-
 plt.plot(years,[cult_1970_cohere,cult_1980_cohere,cult_1990_cohere,cult_2000_cohere], label='Organizational Institutionalism', color = 'red')
-
 plt.plot(years,[rela_1970_cohere,rela_1980_cohere,rela_1990_cohere,rela_2000_cohere],':', label='Resource Dependence', color = 'blue')
 
 plt.xlabel('Time period')
@@ -374,6 +372,7 @@ plt.grid()
 filepath = join(output_dir,  'coherence_score_core_dict' + ".png")
 
 plt.savefig(filepath, bbox_inches='tight', dpi= 600)
+plt.close('all')
 
     
 ####################################
@@ -389,8 +388,8 @@ ref_list_3 =[cult_refined_3, dem_refined_3, relt_refined_3]
 ref_list_4 =[cult_refined_4, dem_refined_4, relt_refined_4] 
 distinct_results_ref = get_distinct_score_df(ref_list_1,ref_list_2,ref_list_3, ref_list_4, True  )
 
-distinct_results_ref.to_csv(join(output_dir, 'distinct_results_ref.csv'))
-print("saved distinct_results_ref.csv!")
+distinct_results_ref.to_csv(join(output_dir, 'distinct_results_expanded.csv'))
+print("saved distinct_results_expanded.csv!")
 
 ### get a pandas df storing distinctive score for each core decade dicts 
 core_lists = [dem_core,relt_core,cult_core]
@@ -415,9 +414,11 @@ plt.ylim(0.75, 0.95)
 plt.yticks(np.linspace(0.75,  0.95, 5))
 plt.grid()
 
-filepath = join(output_dir,'distinctiveness_score_refined_dict' + ".png")
+filepath = join(output_dir,'distinctiveness_score_expanded_dict' + ".png")
 
 plt.savefig(filepath, bbox_inches='tight', dpi= 600)
+plt.close()
+
 
 ### plot distinctive score for core decade dicts
 
@@ -440,3 +441,4 @@ plt.grid()
 filepath = join( output_dir, 'distinctiveness_score_core_dict' + ".png")
 
 plt.savefig(filepath, bbox_inches='tight', dpi= 600)
+plt.close()
