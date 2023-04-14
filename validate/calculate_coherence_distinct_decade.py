@@ -1,4 +1,7 @@
-'''
+#!/usr/bin/env python
+# coding: utf-8
+
+"""
 @title: Calculate coherence & distinctiveness scores for dictionaries by decade
 
 @authors: Nancy Xu, UC Berkeley; Jaren Haber, PhD, Dartmouth College
@@ -11,6 +14,8 @@
 
 ------------------------------------------------------------------------------------------------
 
+@usage: python3 calculate_coherence_distinct_decade.py -w <path-to-work-dir> -o <path-to-output-dir>
+
 @script inputs: 
 - work_dir (-w) --> the current directory you're working with, it should be one level higher than models_storage and dictionary_methods
 - output_dir (-o) --> the directory where you want to store the csv dataframes
@@ -20,12 +25,12 @@
 - graph of coherence scores over decades for refined dictionaries
 - graph of distinctiveness scores over decades for core dictionaries
 - graph of distinctiveness scores over decades for refined dictionaries
-- csv of coherence scores over decades for core dictionaries
-- csv of coherence scores over decades for expanded dictionaries
-- csv of distinctiveness scores over decades for core dictionaries
-- csv of distinctiveness scores over decades for expanded dictionaries
+- table of coherence scores over decades for core dictionaries (csv)
+- table of coherence scores over decades for expanded dictionaries (csv)
+- table of distinctiveness scores over decades for core dictionaries (csv)
+- table of distinctiveness scores over decades for expanded dictionaries (csv)
+"""
 
-'''
 
 import numpy as np
 import pandas as pd
@@ -38,16 +43,15 @@ import argparse
 from os.path import join
 import matplotlib.pyplot as plt
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--output_dir", help = "Show Output" )
 parser.add_argument("-w", "--work_dir", help = "Show Output" )
-
 
 args = parser.parse_args()
 
 work_dir = str(args.work_dir)
 output_dir = str(args.output_dir)
+
 
 ####################################
 ###### define filepaths
@@ -61,17 +65,14 @@ w2v_1990s_fp = join(models_dir, 'word2vec_1993-2003_phrased_filtered_enchant_org
 w2v_2000s_fp = join(models_dir, 'word2vec_2004-2014_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
 w2v_all_decades_fp = join(models_dir,'word2vec_ALLYEARS_phrased_filtered_enchant_orgdict_300d_10w_020423.bin') 
 
-
 ## dicts
 dicts_dir = join(work_dir, 'dictionary_methods/dictionaries')
-
 
 ## core dicts
 core_dicts_dir = join(dicts_dir, 'core')
 cult_core_fp = join(core_dicts_dir, 'cultural_core.csv')
 dem_core_fp = join(core_dicts_dir, 'demographic_core.csv')
 relt_core_fp = join(core_dicts_dir, 'relational_core.csv')
-
 
 ## refined dicts
 refined_dicts_dir = join(dicts_dir, 'expanded_decades')
@@ -94,8 +95,10 @@ relt_refined_decade_4_fp = join(refined_dicts_dir, 'relational_2004_2014.txt')
 
 
 ####################################
-###### load in decade specific models
+###### Load models and dictionaries
 ####################################
+
+## load in decade specific models
 
 m1 = KeyedVectors.load(w2v_1970s_fp)
 m2 = KeyedVectors.load(w2v_1980s_fp)
@@ -104,9 +107,7 @@ m4 = KeyedVectors.load(w2v_2000s_fp)
 
 models = [m1, m2, m3, m4]
 
-####################################
-###### load in core dictionaries
-####################################
+## load in core dictionaries
 
 cult_core = list(pd.read_csv(cult_core_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 dem_core = list(pd.read_csv(dem_core_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
@@ -115,9 +116,7 @@ relt_core = list(pd.read_csv(relt_core_fp, header=None)[0].apply(lambda x: x.rep
 core_lists = [dem_core,relt_core,cult_core]
 years = ['1971-1981','1982-1992','1993-2003','2004-2014']
 
-####################################
-###### load in expanded decade dictionaries
-####################################
+## load in expanded decade dictionaries
 
 cult_refined_1 = list(pd.read_csv(cult_refined_decade_1_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 dem_refined_1 = list(pd.read_csv(dem_refined_decade_1_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
@@ -135,12 +134,14 @@ cult_refined_4 = list(pd.read_csv(cult_refined_decade_4_fp, header=None)[0].appl
 dem_refined_4 = list(pd.read_csv(dem_refined_decade_4_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 relt_refined_4 = list(pd.read_csv(relt_refined_decade_4_fp, header=None)[0].apply(lambda x: x.replace(' ', '_')))
 
+
 ####################################
 ###### define functions
 ####################################
 
 def dict_cohere(thisdict, wem_model):
-    '''Computes the average cosine similarity score of terms within one dictionary with all other terms in that same dictionary,
+    """
+    Computes the average cosine similarity score of terms within one dictionary with all other terms in that same dictionary,
     effectively measuring the coherence of the dictionary.
     ...question for development: does it make sense to compare the average cosine similarity score between all terms 
     in thisdict and the average cosine similarity among the total model vocabulary? (Could that be, by definition, 0?)
@@ -148,7 +149,8 @@ def dict_cohere(thisdict, wem_model):
     NOTE: For an unknown reason, calling this function deletes terms from thisdict.
     
     Inputs: List of key terms, word2vec model.
-    Output: Average cosine similarity score of each word with all other words in the list of key terms.'''
+    Output: Average cosine similarity score of each word with all other words in the list of key terms.
+    """
     
     # Initialize average distance variables:
 
@@ -170,22 +172,20 @@ def dict_cohere(thisdict, wem_model):
           word_avg_sim = np.mean(sim_score_with_others)
           # print(word_avg_sim)
           sim_scores.append(word_avg_sim)# Add up each average distance, incrementally
-     
-
-    
+         
     return np.mean(sim_scores)
 
-## Calculate distinctiveness scores of each dictionary
 
 def dict_distinct(dict1, dict2, wem_model):
-    '''Computes the average cosine distance score of terms in dict1 with all terms in dict2,
+    """
+    Computes the average cosine distance score of terms in dict1 with all terms in dict2,
     effectively measuring the opposition/non-coherence between the two dictionaries.
     
     NOTE: For an unknown reason, calling this function deletes terms from thisdict.
     
     Inputs: List of key terms, word2vec model.
-    Output: Average cosine distance score of each word in dict1 with all words in dict2.'''
-    
+    Output: Average cosine distance score of each word in dict1 with all words in dict2.
+    """
     
     sim_scores = []
     
@@ -205,14 +205,12 @@ def dict_distinct(dict1, dict2, wem_model):
         if (len(sim_score_with_others)!=0):
           word_avg_sim = np.mean(sim_score_with_others)
           sim_scores.append(word_avg_sim)# Add up each average distance, incrementally
-     
-
     
     return np.mean(sim_scores)
 
+
 def get_distinct_score_df(l1=None, l2=None, l3=None, l4=None, expanded = False):
     """
-    
     get a pandas dataframe that contains the distinctiveness score for each decade and each dictionary
     
     input:
@@ -225,8 +223,6 @@ def get_distinct_score_df(l1=None, l2=None, l3=None, l4=None, expanded = False):
     
     output: 
         df storing distinctive score for each decade dicts 
-    
-    
     """
     ## if we want to get the scores for expanded decade dicts, 
     ## using the expanded dictionaries passed as inputs 
@@ -237,7 +233,6 @@ def get_distinct_score_df(l1=None, l2=None, l3=None, l4=None, expanded = False):
         year_coresp_dict_lst['1993-2003'] = l3
         year_coresp_dict_lst['2004-2014'] = l4
 
-    
     distinct_scores_decade_perspective={}
    
     ### iterate through each of the 4 periods, using the period-specific models
@@ -269,7 +264,11 @@ def get_distinct_score_df(l1=None, l2=None, l3=None, l4=None, expanded = False):
     
     return distinct_results
     
-    
+
+####################################
+###### Calculate coherence scores
+####################################
+
 ## calculate coherence score of core decade dicts
 
 dem_1970_cohere = dict_cohere(dem_core,m1)
@@ -305,7 +304,6 @@ dem_2000_cohere_ref = dict_cohere(list(dem_refined_4),m4)
 cult_2000_cohere_ref = dict_cohere(list(cult_refined_4),m4)
 rela_2000_cohere_ref = dict_cohere(list(relt_refined_4),m4)
 
-
 ### save the results to csv's in the output directory
 
 cohere_results_ref = pd.DataFrame([dem_1970_cohere_ref,dem_1980_cohere_ref,dem_1990_cohere_ref,dem_2000_cohere_ref])
@@ -325,6 +323,10 @@ cohere_results=cohere_results.set_axis(years)
 cohere_results.to_csv(join(output_dir, 'cohere_results_core.csv'))
 
 
+####################################
+###### Plot coherence scores
+####################################
+
 #graph coherence score for expanded decade dicts
 plt.plot(years,[dem_1970_cohere_ref,dem_1980_cohere_ref,dem_1990_cohere_ref,dem_2000_cohere_ref],'--', label='Organizational Ecology', color = 'green')
 
@@ -339,14 +341,12 @@ ax = plt.subplot(111)
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.2),
           ncol=3, frameon=False)
 
-
 plt.ylim(0.15, 0.35)
 plt.yticks(np.linspace(0.15, 0.35, 5))
 plt.grid()
 
 filepath = join(output_dir, 'coherence_score_expanded_dict' + ".png")
 plt.savefig(filepath, bbox_inches='tight', dpi= 2000)
-
 
 # graph coherence score for core decade dicts
 
@@ -372,7 +372,10 @@ filepath = join(output_dir,  'coherence_score_core_dict' + ".png")
 plt.savefig(filepath, bbox_inches='tight', dpi= 2000)
 
     
-    
+####################################
+###### Calculate and plot distinctiveness scores
+####################################
+
 ### get a pandas df storing distinctive score for each refined decade dicts 
 ref_list_1 =[cult_refined_1, dem_refined_1, relt_refined_1] 
 ref_list_2 =[cult_refined_2, dem_refined_2, relt_refined_2] 
@@ -392,9 +395,7 @@ print("saved distinct_results_core..csv!")
 
 ### plot distinctive score for expanded decade dicts
 plt.plot(distinct_results_ref['dem'],'--', label='Organizational Ecology', color = 'green')
-
 plt.plot(distinct_results_ref['relt'], label='Organizational Institutionalism', color = 'red')
-
 plt.plot(distinct_results_ref['cult'],':', label='Resource Dependence', color = 'blue')
 
 plt.xlabel('Time period')
@@ -415,25 +416,21 @@ plt.savefig(filepath, bbox_inches='tight', dpi= 2000)
 ### plot distinctive score for core decade dicts
 
 plt.plot(distinct_results['dem'], '--', label='Organizational Ecology', color = 'green')
-
 plt.plot(distinct_results['relt'],label='Organizational Institutionalism', color = 'red')
-
 plt.plot(distinct_results['cult'], ':',label='Resource Dependence', color = 'blue')
 
 plt.xlabel('Time period')
 plt.ylabel('Distinctiveness')
 
-
 ax = plt.subplot(111)
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.2),
           ncol=3, frameon=False)
-
 
 plt.ylim(0.75, 0.95)
 plt.yticks(np.linspace(0.75,  0.95, 5))
 plt.grid()
 
-
+### save plot as .png in the output directory
 filepath = join( output_dir, 'distinctiveness_score_core_dict' + ".png")
 
 plt.savefig(filepath, bbox_inches='tight', dpi= 2000)
