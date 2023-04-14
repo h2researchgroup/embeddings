@@ -59,11 +59,11 @@ output_dir = str(args.output_dir)
 
 ## models
 models_dir = join(work_dir, 'models_storage/w2v_models')
-w2v_1970s_fp = join(models_dir, 'word2vec_1971-1981_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
-w2v_1980s_fp = join(models_dir, 'word2vec_1982-1992_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
-w2v_1990s_fp = join(models_dir, 'word2vec_1993-2003_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
-w2v_2000s_fp = join(models_dir, 'word2vec_2004-2014_phrased_filtered_enchant_orgdict_300d_10w_020423.bin')
-w2v_all_decades_fp = join(models_dir,'word2vec_ALLYEARS_phrased_filtered_enchant_orgdict_300d_10w_020423.bin') 
+w2v_1970s_fp = join(models_dir, 'word2vec_1971-1981_phrased_filtered_enchant_orgdict_300d_10w_032923.bin')
+w2v_1980s_fp = join(models_dir, 'word2vec_1982-1992_phrased_filtered_enchant_orgdict_300d_10w_032923.bin')
+w2v_1990s_fp = join(models_dir, 'word2vec_1993-2003_phrased_filtered_enchant_orgdict_300d_10w_032923.bin')
+w2v_2000s_fp = join(models_dir, 'word2vec_2004-2014_phrased_filtered_enchant_orgdict_300d_10w_032923.bin')
+w2v_all_decades_fp = join(models_dir,'word2vec_ALLYEARS_phrased_filtered_enchant_orgdict_300d_10w_032923.bin') 
 
 ## dicts
 dicts_dir = join(work_dir, 'dictionary_methods/dictionaries')
@@ -97,6 +97,8 @@ relt_refined_decade_4_fp = join(refined_dicts_dir, 'relational_2004_2014.txt')
 ####################################
 ###### Load models and dictionaries
 ####################################
+
+print('Loading word2vec models')
 
 ## load in decade specific models
 
@@ -163,15 +165,15 @@ def dict_cohere(thisdict, wem_model):
         word = thisdict[index]
         sim_score_with_others = []
         for other in other_words:
-          try:
-            sim_score_with_others.append(wem_model.wv.similarity(word, other))
-          except:
-            pass
+            try:
+                sim_score_with_others.append(wem_model.wv.similarity(word, other))
+            except:
+                pass
         
         if (len(sim_score_with_others)!=0):
-          word_avg_sim = np.mean(sim_score_with_others)
-          # print(word_avg_sim)
-          sim_scores.append(word_avg_sim)# Add up each average distance, incrementally
+            word_avg_sim = np.mean(sim_score_with_others)
+            # print(word_avg_sim)
+            sim_scores.append(word_avg_sim)# Add up each average distance, incrementally
          
     return np.mean(sim_scores)
 
@@ -196,15 +198,15 @@ def dict_distinct(dict1, dict2, wem_model):
         word = dict1[index]
         sim_score_with_others = []
         for other in other_words:
-          try:
-            ## get cosine distance 
-            sim_score_with_others.append(1-wem_model.wv.similarity(word, other))
-          except:
-            pass
+            try:
+                ## get cosine distance 
+                sim_score_with_others.append(1-wem_model.wv.similarity(word, other))
+            except:
+                pass
         
         if (len(sim_score_with_others)!=0):
-          word_avg_sim = np.mean(sim_score_with_others)
-          sim_scores.append(word_avg_sim)# Add up each average distance, incrementally
+            word_avg_sim = np.mean(sim_score_with_others)
+            sim_scores.append(word_avg_sim)# Add up each average distance, incrementally
     
     return np.mean(sim_scores)
 
@@ -268,6 +270,8 @@ def get_distinct_score_df(l1=None, l2=None, l3=None, l4=None, expanded = False):
 ####################################
 ###### Calculate coherence scores
 ####################################
+
+print('Calculating coherence scores')
 
 ## calculate coherence score of core decade dicts
 
@@ -346,7 +350,7 @@ plt.yticks(np.linspace(0.15, 0.35, 5))
 plt.grid()
 
 filepath = join(output_dir, 'coherence_score_expanded_dict' + ".png")
-plt.savefig(filepath, bbox_inches='tight', dpi= 2000)
+plt.savefig(filepath, bbox_inches='tight', dpi= 600)
 
 # graph coherence score for core decade dicts
 
@@ -369,12 +373,14 @@ plt.yticks(np.linspace(0.15, 0.35, 5))
 plt.grid()
 filepath = join(output_dir,  'coherence_score_core_dict' + ".png")
 
-plt.savefig(filepath, bbox_inches='tight', dpi= 2000)
+plt.savefig(filepath, bbox_inches='tight', dpi= 600)
 
     
 ####################################
 ###### Calculate and plot distinctiveness scores
 ####################################
+
+print('Calculating distinctiveness scores')
 
 ### get a pandas df storing distinctive score for each refined decade dicts 
 ref_list_1 =[cult_refined_1, dem_refined_1, relt_refined_1] 
@@ -391,7 +397,7 @@ core_lists = [dem_core,relt_core,cult_core]
 distinct_results = get_distinct_score_df(expanded =False  )
 
 distinct_results.to_csv(join(output_dir, 'distinct_results_core.csv'))
-print("saved distinct_results_core..csv!")
+print("saved distinct_results_core.csv!")
 
 ### plot distinctive score for expanded decade dicts
 plt.plot(distinct_results_ref['dem'],'--', label='Organizational Ecology', color = 'green')
@@ -411,7 +417,7 @@ plt.grid()
 
 filepath = join(output_dir,'distinctiveness_score_refined_dict' + ".png")
 
-plt.savefig(filepath, bbox_inches='tight', dpi= 2000)
+plt.savefig(filepath, bbox_inches='tight', dpi= 600)
 
 ### plot distinctive score for core decade dicts
 
@@ -433,4 +439,4 @@ plt.grid()
 ### save plot as .png in the output directory
 filepath = join( output_dir, 'distinctiveness_score_core_dict' + ".png")
 
-plt.savefig(filepath, bbox_inches='tight', dpi= 2000)
+plt.savefig(filepath, bbox_inches='tight', dpi= 600)
